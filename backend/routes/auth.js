@@ -1,4 +1,3 @@
-// backend/routes/auth.js
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
@@ -6,13 +5,24 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
 
-const SECRET_KEY = 'your_secret_key'; // use process.env.SECRET_KEY in production
+// ================== ENV ==================
+const SECRET_KEY = process.env.JWT_SECRET;
+if (!SECRET_KEY) {
+    throw new Error('JWT_SECRET is not set in environment variables');
+}
 
-// ------------------ Multer config ------------------
+// ================== UPLOADS DIR ==================
+const uploadDir = path.join(__dirname, '..', 'uploads');
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir);
+}
+
+// ================== MULTER CONFIG ==================
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, 'uploads/');
+        cb(null, uploadDir);
     },
     filename: (req, file, cb) => {
         cb(null, Date.now() + path.extname(file.originalname));
@@ -21,7 +31,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// ------------------ REGISTER ------------------
+// ================== REGISTER ==================
 router.post('/register', upload.single('profile_picture'), async (req, res) => {
     const { name, email, password } = req.body;
 
@@ -30,7 +40,6 @@ router.post('/register', upload.single('profile_picture'), async (req, res) => {
             return res.status(400).json({ error: 'All fields are required' });
         }
 
-        // check if email already exists
         const [existing] = await db.execute(
             'SELECT id FROM users WHERE email = ?',
             [email]
@@ -60,7 +69,7 @@ router.post('/register', upload.single('profile_picture'), async (req, res) => {
     }
 });
 
-// ------------------ LOGIN ------------------
+// ================== LOGIN ==================
 router.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
@@ -101,18 +110,22 @@ router.post('/login', async (req, res) => {
     }
 });
 
-// ------------------ GET PROFILE ------------------
+// ================== GET PROFILE ==================
 router.get('/profile/:id', async (req, res) => {
     const userId = req.params.id;
+
     try {
         const [rows] = await db.execute(
             'SELECT id, name, email, profile_picture FROM users WHERE id = ?',
             [userId]
         );
 
-        if (!rows.length) return res.status(404).json({ error: 'User not found' });
+        if (!rows.length) {
+            return res.status(404).json({ error: 'User not found' });
+        }
 
         res.json(rows[0]);
+
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Server error' });
