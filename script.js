@@ -5,8 +5,8 @@ document.addEventListener('cut', e => e.preventDefault());
 document.addEventListener('selectstart', e => e.preventDefault());
 document.addEventListener('dragstart', e => e.preventDefault());
 
-// ------------------ API URL ------------------
-const API_URL = 'https://personal-finance-tracker-app-6.onrender.com';
+// ------------------ Base URL for Render deployment ------------------
+const BASE_URL = 'https://personal-finance-tracker-app-6.onrender.com';
 
 let token = null;
 let userId = null;
@@ -44,9 +44,6 @@ const downloadPdfBtn = document.getElementById('downloadPdfBtn');
 const profileName = document.getElementById('profile-name');
 const profilePicture = document.getElementById('profile-picture');
 
-const shareEmailInput = document.getElementById('share-email');
-const sendEmailBtn = document.getElementById('send-email-btn');
-
 // ------------------ Helper: update chart ------------------
 function updateChart(income, expenses) {
     const ctx = document.getElementById('spendingChart').getContext('2d');
@@ -81,7 +78,7 @@ exportChartBtn.addEventListener('click', () => {
 async function loadTransactions() {
     if (!token) return;
     try {
-        const res = await fetch(`${API_URL}/api/transactions`, {
+        const res = await fetch(`${BASE_URL}/api/transactions`, {
             headers: { 'Authorization': token }
         });
         const data = await res.json();
@@ -119,7 +116,7 @@ transactionForm.addEventListener('submit', async (e) => {
         category: categoryInput.value || 'General'
     };
 
-    await fetch(`${API_URL}/api/transactions`, {
+    await fetch(`${BASE_URL}/api/transactions`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': token },
         body: JSON.stringify(transaction)
@@ -133,7 +130,7 @@ transactionForm.addEventListener('submit', async (e) => {
 
 // ------------------ Delete transaction ------------------
 async function deleteTransaction(id) {
-    await fetch(`${API_URL}/api/transactions/${id}`, {
+    await fetch(`${BASE_URL}/api/transactions/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': token }
     });
@@ -150,7 +147,7 @@ registerBtn.addEventListener('click', async () => {
     if (file) formData.append('profile_picture', file);
 
     try {
-        const res = await fetch(`${API_URL}/api/auth/register`, { method: 'POST', body: formData });
+        const res = await fetch(`${BASE_URL}/api/auth/register`, { method: 'POST', body: formData });
         const data = await res.json();
         alert(data.success ? 'Registered! Please login.' : data.error);
     } catch (err) {
@@ -161,7 +158,7 @@ registerBtn.addEventListener('click', async () => {
 // ------------------ Login ------------------
 loginBtn.addEventListener('click', async () => {
     try {
-        const res = await fetch(`${API_URL}/api/auth/login`, {
+        const res = await fetch(`${BASE_URL}/api/auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email: emailInput.value, password: passwordInput.value })
@@ -179,7 +176,7 @@ loginBtn.addEventListener('click', async () => {
 
             profileName.textContent = data.name;
             profilePicture.src = data.profile_picture
-                ? `${API_URL}/uploads/${data.profile_picture}`
+                ? `${BASE_URL}/uploads/${data.profile_picture}`
                 : 'default-avatar.png';
 
             loadTransactions();
@@ -204,14 +201,14 @@ window.addEventListener('load', async () => {
         await loadTransactions();
 
         try {
-            const res = await fetch(`${API_URL}/api/auth/profile/${userId}`, {
+            const res = await fetch(`${BASE_URL}/api/auth/profile/${userId}`, {
                 headers: { 'Authorization': token }
             });
             const data = await res.json();
 
             profileName.textContent = data.name;
             profilePicture.src = data.profile_picture
-                ? `${API_URL}/uploads/${data.profile_picture}`
+                ? `${BASE_URL}/uploads/${data.profile_picture}`
                 : 'default-avatar.png';
         } catch (err) {
             console.error('Failed to fetch profile on refresh:', err);
@@ -233,7 +230,7 @@ logoutBtn.addEventListener('click', () => {
 loadSummaryBtn.addEventListener('click', async () => {
     const period = periodSelect.value;
     try {
-        const res = await fetch(`${API_URL}/api/transactions/summary?period=${period}`, { headers: { 'Authorization': token } });
+        const res = await fetch(`${BASE_URL}/api/transactions/summary?period=${period}`, { headers: { 'Authorization': token } });
         const data = await res.json();
 
         let totalIncome = 0, totalExpense = 0;
@@ -277,6 +274,9 @@ downloadPdfBtn.addEventListener('click', async () => {
 });
 
 // ------------------ Send Email ------------------
+const shareEmailInput = document.getElementById('share-email');
+const sendEmailBtn = document.getElementById('send-email-btn');
+
 sendEmailBtn.addEventListener('click', async () => {
     if (!token) return alert('Please login first.');
     const email = shareEmailInput.value.trim();
@@ -299,7 +299,7 @@ sendEmailBtn.addEventListener('click', async () => {
     const pdfBase64 = pdf.output('datauristring').split(',')[1];
 
     try {
-        const res = await fetch(`${API_URL}/api/share/send`, {
+        const res = await fetch(`${BASE_URL}/api/share/send`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': token },
             body: JSON.stringify({ email, pdfBase64 })
