@@ -1,27 +1,21 @@
-const mysql = require('mysql2/promise');
+    const mysql = require('mysql2/promise');
+    require('dotenv').config();
 
-// --- ENV variables for Render / production ---
-const {
-    DB_HOST,
-    DB_USER,
-    DB_PASSWORD,
-    DB_NAME,
-    DB_PORT
-} = process.env;
+    async function testDb() {
+    const db = mysql.createPool({
+        host: process.env.DB_HOST,
+        user: process.env.DB_USER,
+        password: process.env.DB_PASS,
+        database: process.env.DB_NAME,
+        port: process.env.DB_PORT
+    });
 
-if (!DB_HOST || !DB_USER || !DB_PASSWORD || !DB_NAME || !DB_PORT) {
-    throw new Error('Database environment variables are not set!');
-}
+    try {
+        const [rows] = await db.query('SELECT NOW() AS now');
+        console.log('DB connected:', rows);
+    } catch (err) {
+        console.error('DB connection error:', err);
+    }
+    }
 
-const db = mysql.createPool({
-    host: DB_HOST,
-    user: DB_USER,
-    password: DB_PASSWORD,
-    database: DB_NAME,
-    port: Number(DB_PORT),
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
-});
-
-module.exports = db;
+    testDb();
