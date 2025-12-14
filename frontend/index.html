@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Finance Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Authentication -->
+    <div id="auth">
+        <h2>Login / Register</h2>
+        <input type="text" id="name" placeholder="Name (for register)">
+        <input type="email" id="email" placeholder="Email">
+        <input type="password" id="password" placeholder="Password">
+        <label for="profile-upload-auth">Profile Picture:</label>
+        <input type="file" id="profile-upload-auth" accept="image/*">
+        <button id="registerBtn">Register</button>
+        <button id="loginBtn">Login</button>
+    </div>
+
+    <!-- Main App -->
+    <div id="app" style="display:none;">
+        <header>
+            <h1>💰 Personal Finance Tracker</h1>
+            <button id="logoutBtn">Logout</button>
+        </header>
+
+        <!-- Profile Section -->
+        <section id="profile-section">
+            <img id="profile-picture" src="default-avatar.png" alt="Profile Picture" width="80">
+            <h3 id="profile-name"></h3>
+        </section>
+
+        <!-- Balance & Summary -->
+        <section id="balance-section">
+            <h2>Balance: $<span id="balance">0.00</span></h2>
+            <p>Income: $<span id="income">0.00</span> | Expenses: $<span id="expenses">0.00</span></p>
+        </section>
+
+        <!-- Transaction Form -->
+        <section id="form-section">
+            <h3>Add Transaction</h3>
+            <form id="transaction-form">
+                <select id="category" required>
+                    <option value="" disabled selected>Select Category</option>
+                    <option value="Income">Income</option>
+                    <option value="Food">Food</option>
+                    <option value="Housing">Housing</option>
+                    <option value="Transportation">Transportation</option>
+                    <option value="Entertainment">Entertainment</option>
+                    <option value="Other">Other</option>
+                </select> 
+                
+                <select id="type" required>
+                    <option value="" disabled selected>Type</option>
+                    <option value="income">Income</option>
+                    <option value="expense">Expense</option>
+                </select>
+                
+                <input type="number" id="amount" placeholder="Amount" required>
+                <input type="text" id="description" placeholder="Description" required>
+                <button type="submit">Add Transaction</button>
+            </form>
+        </section>
+
+        <!-- Transactions List -->
+        <section id="transactions-section">
+            <h3>Transactions</h3>
+            <ul id="transactions-list"></ul>
+        </section>
+
+        <!-- Chart Section -->
+        <section id="charts-section">
+            <h3>Spending Overview</h3>
+            <canvas id="spendingChart"></canvas>
+            <div class="chart-buttons">
+                <button id="toggleChartBtn">Toggle Pie/Bar Chart</button>
+                <button id="exportChartBtn">Export Chart as Image</button>
+                <button id="downloadPdfBtn">Download PDF</button>
+            </div>
+        </section>
+
+        <!-- Summary Section -->
+        <section id="summary-section">
+            <h3>Summary</h3>
+            <select id="period-select">
+                <option value="monthly">Monthly</option>
+                <option value="yearly">Yearly</option>
+            </select>
+            <button id="load-summary-btn">Load Summary</button>
+            <div id="summary-output"></div>
+        </section>
+
+        <!-- Share PDF Section -->
+        <section id="share-section">
+            <h3>Send Summary via Email</h3>
+            <input type="email" id="recipient-email" placeholder="Recipient Email" required>
+            <button id="sendEmailBtn">Send PDF</button>
+            <p id="email-status"></p>
+        </section>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
